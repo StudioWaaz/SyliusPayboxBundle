@@ -1,5 +1,5 @@
 {
-    "name": "gontran/sylius-paybox-dev",
+    "name": "gontran/sylius-paybox",
     "type": "sylius-bundle",
     "description": "Paybox gateway for Sylius projects.",
     "keywords": ["Sylius", "Payum", "Paybox", "Symfony"],
