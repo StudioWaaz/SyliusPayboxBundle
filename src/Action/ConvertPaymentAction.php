@@ -330,12 +330,12 @@ class ConvertPaymentAction implements ActionInterface, GenericTokenFactoryAwareI
         $billingAddress = $order->getBillingAddress();
 
         return [
-            'firstName' => htmlspecialchars($billingAddress->getFirstName()),
-            'lastName' => htmlspecialchars($billingAddress->getLastName()),
-            'address1' => htmlspecialchars($billingAddress->getStreet()),
-            'zipCode' => htmlspecialchars($billingAddress->getPostcode()),
-            'city' => htmlspecialchars($billingAddress->getCity()),
-            'countryCode' => $this->setCountryCodeFromAlpha2($billingAddress->getCountryCode())
+            'firstName' => $this->formatage($billingAddress->getFirstName(), 22),
+            'lastName' => $this->formatage($billingAddress->getLastName(), 22),
+            'address1' => $this->formatage($billingAddress->getStreet(), 50),
+            'zipCode' => $this->formatage($billingAddress->getPostcode(), 16),
+            'city' => $this->formatage($billingAddress->getCity(), 50),
+            'countryCode' => $this->formatage($this->setCountryCodeFromAlpha2($billingAddress->getCountryCode()), 3)
         ];
     }
 
@@ -366,6 +366,32 @@ class ConvertPaymentAction implements ActionInterface, GenericTokenFactoryAwareI
         $xml .= '</Billing>';
 
         return $xml;
+    }
+
+    /**
+     * Format value by removing accents, special characters and limiting length
+     *
+     * @param string $value
+     * @param int $maxLength
+     * @return string
+     */
+    private function formatage(string $value, int $maxLength): string
+    {
+        if (class_exists('Transliterator')) {
+            $value = strtoupper(\Transliterator::create('NFD; [:Nonspacing Mark:] Remove; NFC')->transliterate($value));
+        } else {
+            // Fallback if Transliterator is not available
+            $value = strtoupper($value);
+            $value = str_replace(['À','Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë','Ì','Í','Î','Ï','Ð','Ñ','Ò','Ó','Ô','Õ','Ö','Ø','Ù','Ú','Û','Ü','Ý','Þ','ß','à','á','â','ã','ä','å','æ','ç','è','é','ê','ë','ì','í','î','ï','ð','ñ','ò','ó','ô','õ','ö','ø','ù','ú','û','ü','ý','þ','ÿ'],
+                               ['A','A','A','A','A','A','AE','C','E','E','E','E','I','I','I','I','D','N','O','O','O','O','O','O','U','U','U','U','Y','TH','ss','a','a','a','a','a','a','ae','c','e','e','e','e','i','i','i','i','d','n','o','o','o','o','o','o','u','u','u','u','y','th','y'],
+                               $value);
+        }
+
+        $value = preg_replace('/[^A-Z0-9\s]/', '', $value);
+        $value = preg_replace('/\s+/', ' ', $value);
+        $value = substr($value, 0, $maxLength);
+
+        return trim($value);
     }
 
     /**
