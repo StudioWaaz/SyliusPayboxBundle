@@ -17,7 +17,8 @@ class ConvertPaymentAction implements ActionInterface, GenericTokenFactoryAwareI
     use GatewayAwareTrait;
     use GenericTokenFactoryAwareTrait;
 
-    protected static array $countries = [
+    /** @var array $countries */
+    protected static $countries = [
         ["alpha2" => "AF", "alpha3" => "AFG", "numeric" => "004"],
         ["alpha2" => "AL", "alpha3" => "ALB", "numeric" => "008"],
         ["alpha2" => "DZ", "alpha3" => "DZA", "numeric" => "012"],
